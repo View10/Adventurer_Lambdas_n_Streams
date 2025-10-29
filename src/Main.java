@@ -41,12 +41,12 @@ public class Main {
 
     public static Map<Guild, Double> rankGuilds(List<Guild> guilds){
         return guilds.stream()
-                .flatMap(g -> g.getName())
-                .collect(Collectors.toList());
+                .sorted(Comparator.comparingDouble(Guild::getAverageAge))
+                .collect(Collectors.toMap(g -> g, Guild::getAverageAge));
     }
 
     public static void getNumberOfAdventurersWithEachSkill(List<Guild> guilds){
-        System.out.println("Skill thing: " + guilds.stream()
+        System.out.println(guilds.stream()
                 .flatMap(g -> g.getAdventurers().stream())
                 .flatMap(a -> a.getSkills().stream())
                 .collect(Collectors.groupingBy(s -> s, Collectors.counting())));
@@ -69,6 +69,7 @@ public class Main {
         List<Adventurer> filteredListBySkills = filterAdventuresBySkill(guilds, Skill.NECROMANCY);
         Map<Role, List<Adventurer>> groupOfAdventurers = groupAdventurersByRole(guilds);
         Optional<Adventurer> mostSkilledAdventurer = getMostSkilledAdventurer(guilds);
+        Map<Guild, Double> averageAgePerGuild = rankGuilds(guilds);
 
         //Listing the adventurers with the necromancy skill
         for (Adventurer a : filteredListBySkills){
@@ -82,6 +83,11 @@ public class Main {
 
         //Printing most skilled adventurer
         System.out.println("\nThe Adventurer with most skills is " + mostSkilledAdventurer.get().getName() + " with " + mostSkilledAdventurer.get().getSkills().size() + " skills");
+
+        //prints the guilds and their average age in ascendant order
+        averageAgePerGuild.forEach((g, a) -> {
+            System.out.println(g + ". Average Age: " + a);
+        });
 
         //Prints the number of adventurers with for skill
         getNumberOfAdventurersWithEachSkill(guilds);
